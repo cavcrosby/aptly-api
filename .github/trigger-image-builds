@@ -1,0 +1,87 @@
+#!/bin/bash
+#
+# Triggers container image builds in GitHub Actions for versions of the Aptly
+# executable.
+
+set -eo pipefail
+
+# constants
+PROGNAME="$(basename "$0")"
+readonly PROGNAME
+
+is_ge_version() {
+    local version1="$1"
+    local version2="$2"
+
+    # uniq handles equal versions
+    ! printf \
+        '%s\n%s\n' \
+        "${version1}" \
+        "${version2}" \
+        | sort --version-sort \
+        | uniq --unique \
+        | head --lines 1 \
+        | grep --quiet "${version1}"
+}
+
+if ! [ "${GITHUB_ACTIONS}" ]; then
+    printf '%s: %s\n' "${PROGNAME}" "must run in a GitHub Actions's workflow" >&2
+    exit 1
+fi
+
+tags="$(\
+    gh api \
+        --paginate \
+        "repos/aptly-dev/aptly/tags" \
+        | yq --input-format "json" '[.[]] | flatten | .[].name' \
+)"
+
+# tail --lines 2 represents number of minor versions (e.g. 1.6) to build
+for minor_version in $(\
+    printf \
+        '%s\n' \
+        "${tags}" \
+        | sed \
+            --regexp-extended \
+            's/^v//; s/\.[[:digit:]]+$//' \
+        | sort --version-sort \
+        | uniq \
+        | tail --lines 2 \
+    ); do
+        if ! is_ge_version "${minor_version}" "1.6"; then
+            continue
+        fi
+
+        # 1.6 => 1.6.2
+        latest_patch_version="$(\
+            printf '%s\n' "${tags}" \
+            | sort --version-sort \
+            | grep "${minor_version}" \
+            | tail --lines 1 \
+        )"
+        
+        if [ "${latest_patch_version}" = \
+            "$(\
+                printf \
+                    '%s\n' \
+                    "${tags}" \
+                    | sort --version-sort \
+                    | tail --lines 1 \
+            )" \
+        ]; then
+            gh workflow run \
+                --repo "cavcrosby/aptly-api" \
+                --field minor_version="${minor_version}" \
+                --field patch_version="${latest_patch_version#v}" \
+                --field latest="true" \
+                "build-images.yml"
+        else
+            gh workflow run \
+                --repo "cavcrosby/aptly-api" \
+                --field minor_version="${minor_version}" \
+                --field patch_version="${latest_patch_version#v}" \
+                "build-images.yml"
+        fi
+done
+
+exit 0

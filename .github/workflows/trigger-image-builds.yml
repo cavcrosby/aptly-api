@@ -1,0 +1,22 @@
+name: Triggers container image builds
+
+on:
+  schedule:
+    - cron: "0 5 * * 6"
+  push:
+    paths:
+      - src/Dockerfile
+  workflow_dispatch: {}
+
+jobs:
+  trigger-image-builds:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: actions/checkout@v6
+          
+      - name: Trigger container image builds
+        run: ./.github/trigger-image-builds
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

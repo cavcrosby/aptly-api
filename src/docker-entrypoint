@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+# Runs the main command for a Docker image's ENTRYPOINT instruction.
+
+set -eo pipefail
+
+if [ -d "/etc/aptly-api/secrets/gpg" ]; then
+    find "/etc/aptly-api/secrets/gpg" \
+        \( -type f \) \
+        \( -iname "*.asc" -or -iname "*.gpg" \) \
+        -exec gpg --batch --quiet --import "{}" ";"
+fi
+
+exec aptly api serve \
+    -no-lock \
+    -config "${CONFIG_PATH:-${DEFAULT_CONFIG_PATH}}" \
+    -listen=":${PORT:-8080}"

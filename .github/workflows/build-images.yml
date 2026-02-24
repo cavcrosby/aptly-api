@@ -1,0 +1,67 @@
+---
+name: Build the container images
+
+on:
+  workflow_dispatch:
+    inputs:
+      minor_version:
+        type: string
+        description: Minor version of Aptly (e.g. 1.6)
+        required: true
+      patch_version:
+        type: string
+        description: Patch version of Aptly (e.g. 1.6.1)
+        required: true
+      latest:
+        type: boolean
+        description: Is the latest version?
+        required: true
+        default: false
+
+jobs:
+  docker-hub:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download the Aptly deb package
+        run: |
+          sudo install --mode 644 "./.github/aptly.sources" "/etc/apt/sources.list.d"
+          sudo apt-get update
+          sudo apt-get download "aptly=${{ inputs.patch_version }}"
+          mv "aptly_${{ inputs.patch_version }}_amd64.deb" "./src"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: cavcrosby
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build and push to Docker Hub (latest)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./src
+          file: ./src/Dockerfile
+          push: true
+          tags: cavcrosby/aptly-api:latest,cavcrosby/aptly-api:${{ inputs.minor_version }}
+          build-args: |
+            deb_filename=aptly_${{ inputs.patch_version }}_amd64.deb
+        if: ${{ inputs.latest }}
+
+      - name: Build and push to Docker Hub (non-latest)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./src
+          file: ./src/Dockerfile
+          push: true
+          tags: cavcrosby/aptly-api:${{ inputs.minor_version }}
+          build-args: |
+            deb_filename=aptly_${{ inputs.patch_version }}_amd64.deb
+        if: ${{ !inputs.latest }}
+
+      - name: Push the repository's README to Docker Hub
+        uses: peter-evans/dockerhub-description@v5
+        with:
+          username: cavcrosby
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          repository: cavcrosby/aptly-api
