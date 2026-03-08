@@ -30,6 +30,6 @@ COPY \
     "./aptly.conf" \
     "${DEFAULT_CONFIG_PATH}"
 
-USER "${USER_NAME}"
+USER 1000
 VOLUME ["/var/lib/aptly-api"]
 ENTRYPOINT ["/usr/local/libexec/docker-entrypoint"]
