@@ -5,9 +5,10 @@
 set -eo pipefail
 
 if [ -d "/etc/aptly-api/secrets/gpg" ]; then
-    find "/etc/aptly-api/secrets/gpg" \
+    find \
+        "/etc/aptly-api/secrets/gpg" \
         \( -type f \) \
-        \( -iname "*.asc" -or -iname "*.gpg" \) \
+        \( -name "*.asc" -or -name "*.gpg" \) \
         -exec gpg --batch --quiet --import "{}" ";"
 fi
 
