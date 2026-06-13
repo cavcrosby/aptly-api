@@ -15,7 +15,7 @@ is_ge_version() {
 
     # uniq handles equal versions
     ! printf \
-        '%s\n%s\n' \
+        "%s\n%s\n" \
         "${version1}" \
         "${version2}" \
         | sort --version-sort \
@@ -25,7 +25,7 @@ is_ge_version() {
 }
 
 if ! [ "${GITHUB_ACTIONS}" ]; then
-    printf '%s: %s\n' "${PROGNAME}" "must run in a GitHub Actions's workflow" >&2
+    printf "%s: %s\n" "${PROGNAME}" "must run in a GitHub Actions's workflow" >&2
     exit 1
 fi
 
@@ -39,7 +39,7 @@ tags="$(\
 # tail --lines 2 represents number of minor versions (e.g. 1.6) to build
 for minor_version in $(\
     printf \
-        '%s\n' \
+        "%s\n" \
         "${tags}" \
         | sed \
             --regexp-extended \
@@ -54,16 +54,16 @@ for minor_version in $(\
 
         # 1.6 => 1.6.2
         latest_patch_version="$(\
-            printf '%s\n' "${tags}" \
+            printf "%s\n" "${tags}" \
             | sort --version-sort \
             | grep "${minor_version}" \
             | tail --lines 1 \
         )"
-        
+
         if [ "${latest_patch_version}" = \
             "$(\
                 printf \
-                    '%s\n' \
+                    "%s\n" \
                     "${tags}" \
                     | sort --version-sort \
                     | tail --lines 1 \
