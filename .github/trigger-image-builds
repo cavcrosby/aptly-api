@@ -33,7 +33,7 @@ tags="$(\
     gh api \
         --paginate \
         "repos/aptly-dev/aptly/tags" \
-        | yq --input-format "json" '[.[]] | flatten | .[].name' \
+        | yq '[.[]] | flatten | .[].name' \
 )"
 
 # tail --lines 2 represents number of minor versions (e.g. 1.6) to build
