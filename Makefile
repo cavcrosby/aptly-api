@@ -46,7 +46,8 @@ ${SETUP}:
 ${IMAGE}:
 >	${DOCKER} build \
 		--tag "cavcrosby/aptly-api:latest" \
-		--file "./src/Dockerfile" "${CURDIR}/src"
+		--file "./src/Dockerfile" \
+		"${CURDIR}/src"
 
 .PHONY: ${CLEAN}
 ${CLEAN}:
