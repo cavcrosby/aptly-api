@@ -25,7 +25,12 @@ is_ge_version() {
 }
 
 if ! [ "${GITHUB_ACTIONS}" ]; then
-    printf "%s: %s\n" "${PROGNAME}" "must run in a GitHub Actions's workflow" >&2
+    printf \
+        "%s: %s\n" \
+        "${PROGNAME}" \
+        "must run in a GitHub Actions's workflow" \
+        >&2
+
     exit 1
 fi
 
