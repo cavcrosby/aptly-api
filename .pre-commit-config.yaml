@@ -8,12 +8,12 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/cavcrosby/shellcheck-precommit.git
-    rev: v0.12.0
+    rev: v0.13.0
     hooks:
       - id: shellcheck
 
   - repo: https://github.com/DavidAnson/markdownlint-cli2.git
-    rev: v0.21.0
+    rev: v0.23.2
     hooks:
       - id: markdownlint-cli2
 
@@ -26,4 +26,4 @@ repos:
         types:
           - markdown
         additional_dependencies:
-          - prettier@3.8.1
+          - prettier@3.9.6
