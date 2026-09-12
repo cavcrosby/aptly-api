@@ -27,3 +27,8 @@ repos:
           - markdown
         additional_dependencies:
           - prettier@3.8.1
+
+  - repo: https://github.com/betterleaks/betterleaks.git
+    rev: v1.8.1
+    hooks:
+      - id: betterleaks
