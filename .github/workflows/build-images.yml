@@ -43,7 +43,9 @@ jobs:
           context: ./src
           file: ./src/Dockerfile
           push: true
-          tags: cavcrosby/aptly-api:latest,cavcrosby/aptly-api:${{ inputs.minor_version }}
+          tags:
+            cavcrosby/aptly-api:latest,cavcrosby/aptly-api:${{
+            inputs.minor_version }}
           build-args: |
             deb_filename=aptly_${{ inputs.patch_version }}_amd64.deb
         if: ${{ inputs.latest }}
